@@ -116,13 +116,15 @@ class YouTubeDownloader:
             # Configure yt-dlp options based on download type
             if download_type == 'audio':
                 ydl_opts = {
-                    'format': 'bestaudio/best',
+                    'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best',
                     'outtmpl': os.path.join(user_dir, '%(title)s.%(ext)s'),
                     'postprocessors': [{
                         'key': 'FFmpegExtractAudio',
                         'preferredcodec': 'mp3',
                         'preferredquality': '192',
                     }],
+                    'ffmpeg_location': '/usr/bin/ffmpeg',  # Explicit FFmpeg path
+                    'prefer_ffmpeg': True,
                     'http_headers': {
                         'User-Agent': random.choice(USER_AGENTS),
                     },
@@ -130,15 +132,18 @@ class YouTubeDownloader:
                     'fragment_retries': 3,
                     'skip_unavailable_fragments': True,
                     'ignoreerrors': True,
+                    'keepvideo': False,  # Remove original after conversion
                 }
             else:  # video
                 ydl_opts = {
-                    'format': 'best[height<=720]/best',
+                    'format': 'best[height<=720][ext=mp4]/best[height<=720]/bestvideo[height<=720]+bestaudio/best',
                     'outtmpl': os.path.join(user_dir, '%(title)s.%(ext)s'),
                     'postprocessors': [{
                         'key': 'FFmpegVideoConvertor',
                         'preferedformat': 'mp4',
                     }],
+                    'ffmpeg_location': '/usr/bin/ffmpeg',  # Explicit FFmpeg path
+                    'prefer_ffmpeg': True,
                     'http_headers': {
                         'User-Agent': random.choice(USER_AGENTS),
                     },
@@ -146,6 +151,7 @@ class YouTubeDownloader:
                     'fragment_retries': 3,
                     'skip_unavailable_fragments': True,
                     'ignoreerrors': True,
+                    'keepvideo': False,  # Remove original after conversion
                 }
 
             # Add random delay before download
@@ -169,8 +175,12 @@ class YouTubeDownloader:
                 title = info.get('title', 'Unknown')
                 safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()
 
-                # Look for the file with different extensions
-                possible_extensions = ['mp3', 'mp4', 'webm', 'm4a', 'opus']
+                # Look for the file with different extensions (prioritize target formats)
+                if download_type == 'audio':
+                    possible_extensions = ['mp3', 'm4a', 'webm', 'opus']
+                else:
+                    possible_extensions = ['mp4', 'webm', 'mkv', 'avi']
+                    
                 for ext in possible_extensions:
                     filepath = os.path.join(user_dir, f"{safe_title}.{ext}")
                     if os.path.exists(filepath):
@@ -614,4 +624,4 @@ def main():
         cleanup_downloads()
 
 if __name__ == "__main__":
-    main()
+    main(
