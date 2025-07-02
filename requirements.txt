@@ -1,0 +1,21 @@
+# Telegram Bot Framework
+python-telegram-bot==20.7
+
+# YouTube Downloader
+yt-dlp==2023.12.30
+
+# Async HTTP Client
+aiohttp==3.9.1
+
+# HTTP Server for Keep Alive
+flask==3.0.0
+
+# HTTP Requests
+requests==2.31.0
+
+# Additional utilities
+asyncio-throttle==1.0.2
+python-dotenv==1.0.0
+
+# System utilities
+psutil==5.9.
