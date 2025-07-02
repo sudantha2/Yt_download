@@ -239,7 +239,7 @@ def create_search_keyboard(results: List[Dict], page: int, total_pages: int, use
         title = result['title'][:50] + "..." if len(result['title']) > 50 else result['title']
         duration = format_duration(result['duration'])
         
-        button_text = f"🎵 {title} [{duration}]" if search_type == 'song' else f"🎬 {title} [{duration}]"
+        button_text = f"ðŸŽµ {title} [{duration}]" if search_type == 'song' else f"ðŸŽ¬ {title} [{duration}]"
         callback_data = f"download_{search_type}_{i}_{user_id}"
         
         keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
@@ -247,35 +247,35 @@ def create_search_keyboard(results: List[Dict], page: int, total_pages: int, use
     # Navigation buttons
     nav_buttons = []
     if page > 0:
-        nav_buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"page_{page-1}_{user_id}"))
+        nav_buttons.append(InlineKeyboardButton("â¬…ï¸ Previous", callback_data=f"page_{page-1}_{user_id}"))
     
-    nav_buttons.append(InlineKeyboardButton(f"📄 {page+1}/{total_pages}", callback_data="noop"))
+    nav_buttons.append(InlineKeyboardButton(f"ðŸ“„ {page+1}/{total_pages}", callback_data="noop"))
     
     if page < total_pages - 1:
-        nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"page_{page+1}_{user_id}"))
+        nav_buttons.append(InlineKeyboardButton("Next âž¡ï¸", callback_data=f"page_{page+1}_{user_id}"))
     
     if nav_buttons:
         keyboard.append(nav_buttons)
     
     # Cancel button
-    keyboard.append([InlineKeyboardButton("❌ Cancel", callback_data=f"cancel_{user_id}")])
+    keyboard.append([InlineKeyboardButton("âŒ Cancel", callback_data=f"cancel_{user_id}")])
     
     return InlineKeyboardMarkup(keyboard)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command"""
     welcome_text = """
-🎵 **YouTube Downloader Bot** 🎬
+ðŸŽµ **YouTube Downloader Bot** ðŸŽ¬
 
 Welcome! I can help you download songs and videos from YouTube.
 
 **Commands:**
-• `/song <song name>` - Search and download audio (MP3)
-• `/vid <video name>` - Search and download video (MP4)
+â€¢ `/song <song name>` - Search and download audio (MP3)
+â€¢ `/vid <video name>` - Search and download video (MP4)
 
 **Example:**
-• `/song Imagine Dragons Believer`
-• `/vid Funny cat videos`
+â€¢ `/song Imagine Dragons Believer`
+â€¢ `/vid Funny cat videos`
 
 Just send a command and I'll show you search results with navigation buttons!
     """
@@ -285,21 +285,21 @@ Just send a command and I'll show you search results with navigation buttons!
 async def song_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /song command"""
     if not context.args:
-        await update.message.reply_text("❌ Please provide a song name!\n\nExample: `/song Imagine Dragons Believer`", parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text("âŒ Please provide a song name!\n\nExample: `/song Imagine Dragons Believer`", parse_mode=ParseMode.MARKDOWN)
         return
     
     query = " ".join(context.args)
     user_id = update.effective_user.id
     
     # Send searching message
-    searching_msg = await update.message.reply_text("🔍 Searching for songs...")
+    searching_msg = await update.message.reply_text("ðŸ” Searching for songs...")
     
     try:
         # Search for results
         results = await downloader.search_youtube(query, max_results=50)
         
         if not results:
-            await searching_msg.edit_text("❌ No results found. Please try a different search term.")
+            await searching_msg.edit_text("âŒ No results found. Please try a different search term.")
             return
         
         # Store user session
@@ -317,31 +317,31 @@ async def song_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = create_search_keyboard(results, 0, total_pages, user_id, 'song')
         
         # Update message with results
-        text = f"🎵 **Search Results for:** `{query}`\n\n📊 Found {len(results)} songs\n\nSelect a song to download:"
+        text = f"ðŸŽµ **Search Results for:** `{query}`\n\nðŸ“Š Found {len(results)} songs\n\nSelect a song to download:"
         await searching_msg.edit_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
         
     except Exception as e:
         logger.error(f"Song search error: {e}")
-        await searching_msg.edit_text("❌ An error occurred while searching. Please try again.")
+        await searching_msg.edit_text("âŒ An error occurred while searching. Please try again.")
 
 async def vid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /vid command"""
     if not context.args:
-        await update.message.reply_text("❌ Please provide a video name!\n\nExample: `/vid Funny cat videos`", parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text("âŒ Please provide a video name!\n\nExample: `/vid Funny cat videos`", parse_mode=ParseMode.MARKDOWN)
         return
     
     query = " ".join(context.args)
     user_id = update.effective_user.id
     
     # Send searching message
-    searching_msg = await update.message.reply_text("🔍 Searching for videos...")
+    searching_msg = await update.message.reply_text("ðŸ” Searching for videos...")
     
     try:
         # Search for results
         results = await downloader.search_youtube(query, max_results=50)
         
         if not results:
-            await searching_msg.edit_text("❌ No results found. Please try a different search term.")
+            await searching_msg.edit_text("âŒ No results found. Please try a different search term.")
             return
         
         # Store user session
@@ -359,12 +359,12 @@ async def vid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = create_search_keyboard(results, 0, total_pages, user_id, 'vid')
         
         # Update message with results
-        text = f"🎬 **Search Results for:** `{query}`\n\n📊 Found {len(results)} videos\n\nSelect a video to download:"
+        text = f"ðŸŽ¬ **Search Results for:** `{query}`\n\nðŸ“Š Found {len(results)} videos\n\nSelect a video to download:"
         await searching_msg.edit_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
         
     except Exception as e:
         logger.error(f"Video search error: {e}")
-        await searching_msg.edit_text("❌ An error occurred while searching. Please try again.")
+        await searching_msg.edit_text("âŒ An error occurred while searching. Please try again.")
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle button callbacks"""
@@ -381,11 +381,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         callback_user_id = int(parts[2])
         
         if user_id != callback_user_id:
-            await query.answer("❌ This is not your search!", show_alert=True)
+            await query.answer("âŒ This is not your search!", show_alert=True)
             return
         
         if user_id not in user_sessions:
-            await query.edit_message_text("❌ Search session expired. Please start a new search.")
+            await query.edit_message_text("âŒ Search session expired. Please start a new search.")
             return
         
         session = user_sessions[user_id]
@@ -396,8 +396,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = create_search_keyboard(session['results'], page, total_pages, user_id, session['type'])
         
         # Update message
-        emoji = "🎵" if session['type'] == 'song' else "🎬"
-        text = f"{emoji} **Search Results for:** `{session['query']}`\n\n📊 Found {len(session['results'])} {'songs' if session['type'] == 'song' else 'videos'}\n\nSelect a {'song' if session['type'] == 'song' else 'video'} to download:"
+        emoji = "ðŸŽµ" if session['type'] == 'song' else "ðŸŽ¬"
+        text = f"{emoji} **Search Results for:** `{session['query']}`\n\nðŸ“Š Found {len(session['results'])} {'songs' if session['type'] == 'song' else 'videos'}\n\nSelect a {'song' if session['type'] == 'song' else 'video'} to download:"
         
         await query.edit_message_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
     
@@ -406,7 +406,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         callback_user_id = int(callback_data.split("_")[1])
         
         if user_id != callback_user_id:
-            await query.answer("❌ This is not your search!", show_alert=True)
+            await query.answer("âŒ This is not your search!", show_alert=True)
             return
         
         # Get user info
@@ -418,7 +418,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             del user_sessions[user_id]
         
         await query.edit_message_text(
-            f"❌ Search cancelled by {user_link}",
+            f"âŒ Search cancelled by {user_link}",
             parse_mode=ParseMode.MARKDOWN
         )
     
@@ -430,25 +430,25 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         callback_user_id = int(parts[3])
         
         if user_id != callback_user_id:
-            await query.answer("❌ This is not your search!", show_alert=True)
+            await query.answer("âŒ This is not your search!", show_alert=True)
             return
         
         if user_id not in user_sessions:
-            await query.edit_message_text("❌ Search session expired. Please start a new search.")
+            await query.edit_message_text("âŒ Search session expired. Please start a new search.")
             return
         
         session = user_sessions[user_id]
         
         if result_index >= len(session['results']):
-            await query.answer("❌ Invalid selection!", show_alert=True)
+            await query.answer("âŒ Invalid selection!", show_alert=True)
             return
         
         selected_result = session['results'][result_index]
         
         # Update message to show downloading status
-        emoji = "🎵" if download_type == 'song' else "🎬"
+        emoji = "ðŸŽµ" if download_type == 'song' else "ðŸŽ¬"
         await query.edit_message_text(
-            f"{emoji} **Downloading:** `{selected_result['title']}`\n\n⏳ Please wait, this may take a few minutes...",
+            f"{emoji} **Downloading:** `{selected_result['title']}`\n\nâ³ Please wait, this may take a few minutes...",
             parse_mode=ParseMode.MARKDOWN
         )
         
@@ -458,13 +458,13 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             file_path = await downloader.download_media(selected_result['url'], media_type, user_id)
             
             if not file_path or not os.path.exists(file_path):
-                await query.edit_message_text("❌ Download failed. The video might be unavailable or restricted.")
+                await query.edit_message_text("âŒ Download failed. The video might be unavailable or restricted.")
                 return
             
             # Check file size (Telegram limit is ~50MB for bots)
             file_size = os.path.getsize(file_path)
             if file_size > 50 * 1024 * 1024:  # 50MB
-                await query.edit_message_text("❌ File is too large to send via Telegram (>50MB). Please try a shorter video or song.")
+                await query.edit_message_text("âŒ File is too large to send via Telegram (>50MB). Please try a shorter video or song.")
                 # Clean up the file
                 try:
                     os.remove(file_path)
@@ -473,7 +473,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
             
             # Send the file
-            await query.edit_message_text(f"📤 Uploading {media_type}...")
+            await query.edit_message_text(f"ðŸ“¤ Uploading {media_type}...")
             
             with open(file_path, 'rb') as file:
                 if download_type == 'song':
@@ -482,21 +482,21 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         audio=file,
                         title=selected_result['title'],
                         performer=selected_result.get('uploader', 'Unknown'),
-                        caption=f"🎵 **{selected_result['title']}**\n👤 **By:** {selected_result.get('uploader', 'Unknown')}"
+                        caption=f"ðŸŽµ **{selected_result['title']}**\nðŸ‘¤ **By:** {selected_result.get('uploader', 'Unknown')}"
                     )
                 else:
                     await context.bot.send_video(
                         chat_id=query.message.chat_id,
                         video=file,
-                        caption=f"🎬 **{selected_result['title']}**\n👤 **By:** {selected_result.get('uploader', 'Unknown')}"
+                        caption=f"ðŸŽ¬ **{selected_result['title']}**\nðŸ‘¤ **By:** {selected_result.get('uploader', 'Unknown')}"
                     )
             
             # Success message
-            await query.edit_message_text(f"✅ Successfully downloaded and sent: `{selected_result['title']}`", parse_mode=ParseMode.MARKDOWN)
+            await query.edit_message_text(f"âœ… Successfully downloaded and sent: `{selected_result['title']}`", parse_mode=ParseMode.MARKDOWN)
             
         except Exception as e:
             logger.error(f"Download/upload error: {e}")
-            await query.edit_message_text("❌ An error occurred during download or upload. Please try again.")
+            await query.edit_message_text("âŒ An error occurred during download or upload. Please try again.")
         
         finally:
             # Clean up: remove the downloaded file and user directory
@@ -530,7 +530,7 @@ def cleanup_downloads():
     except Exception as e:
         logger.error(f"Cleanup error: {e}")
 
-async def main():
+def main():
     """Main function to run the bot"""
     # Create downloads directory
     os.makedirs(DOWNLOADS_DIR, exist_ok=True)
@@ -551,17 +551,14 @@ async def main():
     logger.info("Starting YouTube Downloader Bot...")
     
     try:
-        await application.run_polling(drop_pending_updates=True)
-    finally:
-        # Clean up on shutdown
-        await downloader.close_session()
-        cleanup_downloads()
-
-if __name__ == "__main__":
-    # Run the bot
-    try:
-        asyncio.run(main())
+        application.run_polling(drop_pending_updates=True)
     except KeyboardInterrupt:
         logger.info("Bot stopped by user")
     except Exception as e:
         logger.error(f"Bot error: {e}")
+    finally:
+        # Clean up on shutdown
+        cleanup_downloads()
+
+if __name__ == "__main__":
+    main()
